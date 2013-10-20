@@ -44,3 +44,4 @@ nosetests.xml
 
 # misc stuff
 .DS_Store
+client_secrets.json

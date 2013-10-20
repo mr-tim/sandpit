@@ -36,6 +36,13 @@ class AppImage(Base):
         return "<AppImage(id='%s', app_id='%s', name='%s', docker_id='%s', status='%s')>" % (self.id, self.app_id, self.name, self.docker_id, self.status)
 
 
+class User(Base):
+    __tablename__ = 'user'
+
+    email = Column(String, primary_key=True)
+    name = Column(String)
+
+
 engine = create_engine('sqlite:///sandpit.sqlite', echo=True)
 
 Session = sessionmaker(bind=engine)
