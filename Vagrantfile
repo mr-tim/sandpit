@@ -47,9 +47,9 @@ Vagrant::Config.run do |config|
   end
 
   config.vm.provision :puppet do |puppet|
-    puppet.manifests_path = "manifests"
+    puppet.manifests_path = "puppet/manifests"
     puppet.manifest_file  = "init.pp"
-    puppet.module_path = "modules"
+    puppet.module_path = "puppet/modules"
   end
 
 
