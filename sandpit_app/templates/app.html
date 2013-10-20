@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block main %}
+<h2>{{ app.name }}</h2>
+<p>Your application is available at the following url:</p>
+<a href="{{ app.url }}">{{ app.url }}</a>
+<h3>Images</h3>
+{% if app.images %}
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Image Id</th>
+                <th>Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for image in app.images %}
+            <tr>
+                <td>{{ image.id }}</td>
+                <td>{{ image.name }}</td>
+                <td>{{ image.status }}</td>
+            </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+<p>No images.</p>  
+{% endif %}
+<a href='/app/{{ app.id }}/createImage' class='btn btn-primary pull-right'>Create Image</a>
+{% endblock %}

@@ -1,12 +1,3 @@
-sandpit
-=======
-
-A place for developers to have fun.
-
-
-Useful Notes
-------------
-
 Run celery with the following:
 
 	celery -A tasks worker --loglevel=debug

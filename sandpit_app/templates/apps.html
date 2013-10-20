@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block main %}
+<h3>Create App</h3>
+<form class='form-horizontal' role='form' action='/app' method='post'>
+    <div class='form-group well'>
+        <label for='newAppName' class='col-lg-2 control-label'>Create Application</label>
+        <div class='col-lg-7'>
+            <input id='newAppName' name='newAppName' type='text' class='form-control' placeholder='new application name'/> 
+        </div>
+        <div class='col-lg-2'>
+            <select id='appType' class='form-control' name='appType'>
+                <!--<option selected='selected' disabled='disabled'>App type</option>-->
+                <option selected='selected' value='python'>python</option>
+                <!--<option value='java'>java</option>-->
+            </select>
+        </div>
+        <input class="btn btn-primary col-lg-1" type="submit" value="Create"/>
+    </div>
+</form>
+
+<h3>My Apps</h3>
+{% if apps %}
+<table class='table'>
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for app in apps %}
+    <tr>
+      <td><a href="/app/{{ app.id }}">{{ app.id }}</a></td>
+      <td>{{ app.name }}</td>
+      <td>{{ app.app_type }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p>No applications defined.</p>
+{% endif %}
+{% endblock %}
