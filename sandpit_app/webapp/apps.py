@@ -12,7 +12,7 @@ def slugify(value):
 apps = Blueprint('apps', __name__)
 
 @apps.route('/')
-def apps():
+def list_apps():
     session = Session()
     apps = session.query(App).order_by('name').all()
     return render_template('apps.html', current_tab='apps', apps=apps)
