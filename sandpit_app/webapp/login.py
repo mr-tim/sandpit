@@ -1,17 +1,17 @@
 import apiclient.discovery
 from flask import Blueprint, redirect, render_template, request
 import httplib2
-import json
 from oauth2client.client import flow_from_clientsecrets
 
 import config
-from models import User, Session
+from core import db
+from models import User
 
 login = Blueprint('login', __name__)
 
 @login.route('/login')
 def login_options():
-    return redirect('/login/google')
+    return render_template('login.html')
 
 @login.route('/login/google')
 def google_login_redirect():
@@ -28,15 +28,18 @@ def google_login_landing():
 
     email, name = profile['email'], profile['name']
 
-    session = Session()
-    user = session.query(User).get(email)
+    user = db.query(User).get(email)
 
     if user is None:
         user = User(email=email, name=name)
-        session.add(user)
-        session.commit()
+        db.add(user)
+        db.commit()
 
-    return render_template('user.html', profile=json.dumps({'email': user.email, 'name': user.name}, indent=2))
+    session = request.environ['beaker.session']
+    session['username'] = user.email
+    session.save()
+
+    return redirect('/')
 
 def get_flow():
     scope = 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
@@ -47,3 +50,12 @@ def get_api(credentials):
     http = httplib2.Http()
     http = credentials.authorize(http)
     return apiclient.discovery.build('oauth2', 'v2', http=http)
+
+@login.route('/logout')
+def logout():
+    session = request.environ['beaker.session']
+    session.delete()
+    return render_template('logged_out.html')
+
+
+

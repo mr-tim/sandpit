@@ -37,3 +37,11 @@ service { "sandpit_celery":
   require => File["/etc/init/sandpit_celery.conf"],
   ensure => "running"
 }
+
+file { ["/sandpit", "/sandpit/sessions", "/sandpit/sessions/data", "/sandpit/sessions/lock"]:
+  ensure => "directory",
+  owner => "vagrant",
+  group => "vagrant"
+}
+
+
