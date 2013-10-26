@@ -23,7 +23,7 @@ def list_apps():
 @security.logged_in
 def create_app():
     app_id = slugify(request.form['newAppName'])
-    app = App(id=app_id, name=request.form['newAppName'], app_type=request.form['appType'])
+    app = App(id=app_id, name=request.form['newAppName'], app_type=request.form['appType'], owner=current_user)
     db.add(app)
     db.commit()
     return redirect('/')

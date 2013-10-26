@@ -12,6 +12,9 @@ class App(Base):
     id = Column(String, primary_key=True)
     name = Column(String)
     app_type = Column(String)
+    owner_email = Column(String, ForeignKey('user.email'))
+
+    owner = relationship('User', backref=backref('apps'))
 
     @property
     def url(self):
