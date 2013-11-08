@@ -3,7 +3,7 @@ package { ["nginx", "curl", "htop", "nmap", "rabbitmq-server"]:
 }
 
 file { "/etc/nginx/sites-available/sandpit":
-  source => "puppet:///modules/sandpit/sandpit.conf",
+  source => "puppet:///modules/sandpit/nginx/sandpit.conf",
   ensure => "present"
 }
 
@@ -13,13 +13,13 @@ file { "/etc/nginx/sites-enabled/sandpit":
   require => [File["/etc/nginx/sites-available/sandpit"], Package['nginx']]
 }
 
-file { "/etc/init/sandpit_app.conf":
-  source => "puppet:///modules/sandpit/sandpit_app.conf",
+file { "/etc/init/sandpit-app.conf":
+  source => "puppet:///modules/sandpit/sandpit-app.conf",
   ensure => "present"
 }
 
-file { "/etc/init/sandpit_celery.conf":
-  source => "puppet:///modules/sandpit/sandpit_celery.conf",
+file { "/etc/init/sandpit-celery.conf":
+  source => "puppet:///modules/sandpit/sandpit-celery.conf",
   ensure => "present"
 }
 
@@ -28,8 +28,8 @@ service { "nginx":
   ensure => "running"
 }
 
-service { "sandpit_app": 
-  require => File["/etc/init/sandpit_app.conf"],
+service { "sandpit-app": 
+  require => File["/etc/init/sandpit-app.conf"],
   ensure => "running"
 }
 
@@ -37,8 +37,8 @@ service { "rabbitmq-server":
   ensure => "running"
 }
 
-service { "sandpit_celery": 
-  require => [File["/etc/init/sandpit_celery.conf"], Service['rabbitmq-server']],
+service { "sandpit-celery": 
+  require => [File["/etc/init/sandpit-celery.conf"], Service['rabbitmq-server']],
   ensure => "running"
 }
 
