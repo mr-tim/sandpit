@@ -6,14 +6,15 @@
 <form class='form-horizontal' role='form' action='/app' method='post'>
     <div class='form-group well'>
         <label for='newAppName' class='col-lg-2 control-label'>Create Application</label>
-        <div class='col-lg-7'>
+        <div class='col-lg-6'>
             <input id='newAppName' name='newAppName' type='text' class='form-control' placeholder='new application name'/> 
         </div>
-        <div class='col-lg-2'>
+        <div class='col-lg-3'>
             <select id='appType' class='form-control' name='appType'>
-                <!--<option selected='selected' disabled='disabled'>App type</option>-->
-                <option selected='selected' value='python'>python</option>
-                <!--<option value='java'>java</option>-->
+                <option selected='selected' disabled='disabled'>App type</option>
+              {% for app_type in app_types %}
+                <option value='{{ app_type.id }}'>{{ app_type.name }}</option>
+              {% endfor %}  
             </select>
         </div>
         <input class="btn btn-primary col-lg-1" type="submit" value="Create"/>
@@ -35,7 +36,7 @@
     <tr>
       <td><a href="/app/{{ app.id }}">{{ app.id }}</a></td>
       <td>{{ app.name }}</td>
-      <td>{{ app.app_type }}</td>
+      <td>{{ app.app_type.name }}</td>
     </tr>
     {% endfor %}
   </tbody>

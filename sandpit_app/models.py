@@ -2,6 +2,7 @@ from sqlalchemy import create_engine, Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref, relationship, sessionmaker
 
+import app_factory
 import config
 
 Base = declarative_base()
@@ -11,10 +12,14 @@ class App(Base):
 
     id = Column(String, primary_key=True)
     name = Column(String)
-    app_type = Column(String)
+    app_type_id = Column(String)
     owner_email = Column(String, ForeignKey('user.email'))
 
     owner = relationship('User', backref=backref('apps'))
+
+    @property
+    def app_type(self):
+        return app_factory.index.get(self.app_type_id)
 
     @property
     def url(self):
@@ -31,6 +36,7 @@ class AppImage(Base):
     name = Column(String)
     status = Column(String)
     docker_id = Column(String)
+    params = Column(String)
     app_id = Column(String, ForeignKey('app.id'))
 
     app = relationship("App", backref=backref('images'))
