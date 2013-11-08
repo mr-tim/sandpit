@@ -5,7 +5,7 @@ import json
 import docker
 from models import Session, AppImage
 
-celery = Celery('build_instance', broker='sqla+sqlite:///celerydb.sqlite')
+celery = Celery('build_instance', broker='amqp://guest:guest@localhost:5672//')
 
 @celery.task
 def build_image(app_image_id):

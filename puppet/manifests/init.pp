@@ -1,4 +1,4 @@
-package { ["nginx", "curl", "htop", "nmap"]:
+package { ["nginx", "curl", "htop", "nmap", "rabbitmq-server"]:
   ensure => "installed"
 }
 
@@ -33,8 +33,12 @@ service { "sandpit_app":
   ensure => "running"
 }
 
+service { "rabbitmq-server":
+  ensure => "running"
+}
+
 service { "sandpit_celery": 
-  require => File["/etc/init/sandpit_celery.conf"],
+  require => [File["/etc/init/sandpit_celery.conf"], Service['rabbitmq-server']],
   ensure => "running"
 }
 
