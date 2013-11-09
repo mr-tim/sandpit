@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, redirect, render_template
 import json
 
 import docker
@@ -24,3 +24,9 @@ def image(image_id):
 def process(process_id):
     process = json.dumps(docker.inspect(process_id), indent=2)
     return render_template('process.html', process=process, current_tab='admin')
+
+@admin.route('/admin/process/<process_id>/stop', methods=['POST'])
+@security.logged_in
+def stop_process(process_id):
+	docker.stop(process_id)
+	return redirect('/admin')

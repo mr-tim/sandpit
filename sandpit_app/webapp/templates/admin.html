@@ -11,7 +11,7 @@
             <th>created</th>
             <th>status</th>
             <th>ports</th>
-            <!--<th></th>-->
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -23,7 +23,7 @@
             <td>{{ process.created }}</td>
             <td>{{ process.status }}</td>
             <td>{{ process.ports }}</td>
-            <!--<td><a href="/admin/process/{{ process.id }}/stop" class="confirm"><span class="glyphicon glyphicon-stop"></span></a>-->
+            <td><a href="/admin/process/{{ process.id }}/stop" class="confirm" data-body="Are you sure you want to stop that process?" data-confirm-button="Stop process"><span class="glyphicon glyphicon-stop"></span></a>
         </tr>
 {% endfor %}
     </tbody>

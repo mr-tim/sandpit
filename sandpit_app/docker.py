@@ -36,6 +36,9 @@ def wait(container_id):
 def commit(container_id, repository):
     return docker(['commit', container_id, repository])
 
+def stop(container_id):
+    return docker(['stop', container_id])
+
 def docker(args):
     args = ['docker'] + list(args)
     print "Running docker: %r" % args
