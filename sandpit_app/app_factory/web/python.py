@@ -1,5 +1,4 @@
 from app_factory.web import WebAppBuilder
-import config
 import docker
 import nginx
 
@@ -18,12 +17,10 @@ class Shykes(WebAppBuilder):
         return container_id
 
     def run(self, app_id, docker_image_id):
-        process = docker.run(docker_image_id, ['/usr/local/bin/runapp'], ports=[5000])
-        process_details = docker.inspect(process)[0]
+        return docker.run(docker_image_id, ['/usr/local/bin/runapp'], ports=[5000])
 
+    def create_front_end(self, container_id, vhost):
+        process_details = docker.inspect(container_id)
         forwarded_port = process_details["NetworkSettings"]["PortMapping"]["Tcp"]["5000"]
-
-        vhost = "%s.%s" % (app_id, config.domain_suffix)
         backend = "http://localhost:%s" % forwarded_port
-
         nginx.configure_vhost(vhost, backend)

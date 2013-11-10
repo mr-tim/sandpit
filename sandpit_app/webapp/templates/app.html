@@ -2,9 +2,62 @@
 
 {% block main %}
 <h2>{{ app.name }}</h2>
-<p>Your application is available at the following url:</p>
+<p>Your application will be available at the following url:</p>
 <a href="{{ app.url }}">{{ app.url }}</a>
-<h3>Images</h3>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#instances" data-toggle="tab">Instances</a></li>
+  <li><a href="#images" data-toggle="tab">Images</a></li>
+</ul>
+
+<div class="tab-content">
+<div class="tab-pane active" id="instances">
+{% if app.instances %}
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Instance Id</th>
+                <th>Container Id</th>
+                <th>Image Id</th>
+                <th>Image Name</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for instance in app.instances %}
+            <tr{% if instance.is_live %} class="success"{% endif %}>
+                <td>{{ instance.id }}</td>
+                <td>{{ instance.container_id }}</td>
+                <td>{{ instance.app_image.id}}</td>
+                <td>{{ instance.app_image.name }}</td>
+                <td>{{ instance.status }}</td>
+                <td>
+                    <div class="pull-right">
+                    {% if instance.status == 'Running' and not instance.is_live %} 
+                    <form style="display: inline;" method="POST" action="/app/{{ app.id }}/instance/{{ instance.id }}/goLive">
+                    <button type="submit" class="btn btn-success btn-sm" style="width: 85px"><span class="glyphicon glyphicon-expand"></span> Go Live</button>
+                    </form>
+                    {% endif %}
+                    {% if instance.status == 'Running' %}
+                    <a href="/app/{{ app.id }}/instance/{{ instance.id }}/stop" class="btn btn-default btn-sm confirm{% if instance.is_live %} disabled{% endif %}" style="width: 85px" data-body="Are you sure you want to stop this instance?" data-confirm-button="Stop Instance"><span class="glyphicon glyphicon-stop"></span> Stop</a>
+                    {% else %}
+                    <form style="display: inline;" method="POST" action="/app/{{ app.id }}/instance/{{ instance.id }}/start"><button type="submit" class="btn btn-default btn-sm" style="width: 85px;"><span class="glyphicon glyphicon-play"></span> Start</button></form>
+                    {% endif %}
+                    <a href="/app/{{ app.id }}/instance/{{ instance.id }}/delete" class="btn btn-danger btn-sm confirm{% if instance.status == 'Running' %} disabled{% endif %}" style="width: 85px" data-body="Are you sure you want to delete this instance?" data-confirm-button="Delete Instance"><span class="glyphicon glyphicon-trash"></span> Delete</a>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+<p>This app currently has no instances.</p>
+<p>To create one, go to the 'images' tab and click 'Create Instance'.</p>
+{% endif %}
+</div>
+
+<div class="tab-pane" id="images">
 {% if app.images %}
     <table class='table'>
         <thead>
@@ -12,20 +65,30 @@
                 <th>Image Id</th>
                 <th>Name</th>
                 <th>Status</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
-    {% for image in app.images %}
+        {% for image in app.images %}
             <tr>
                 <td>{{ image.id }}</td>
                 <td>{{ image.name }}</td>
                 <td>{{ image.status }}</td>
+                <td>
+                {% if image.docker_image_id %}
+                    <form action="/app/{{ app.id }}/createInstance" method="POST">
+                        <input type="hidden" name="image_id" value="{{ image.id }}"/>
+                        <button type="submit" class="btn btn-default btn-sm pull-right"><span class="glyphicon glyphicon-plus"></span> Create Instance</button>
+                    </form>
+                {% endif %}</td>
             </tr>
-    {% endfor %}
+        {% endfor %}
         </tbody>
     </table>
 {% else %}
 <p>No images.</p>  
 {% endif %}
-<a href='/app/{{ app.id }}/createImage' class='btn btn-primary pull-right'>Create Image</a>
+<a href='/app/{{ app.id }}/createImage' class='btn btn-primary pull-right'><span class="glyphicon glyphicon-edit"></span> Create Image</a>
+</div>
+</div>
 {% endblock %}

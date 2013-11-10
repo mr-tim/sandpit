@@ -20,7 +20,11 @@ def ps():
 
 def inspect(object_id):
     j = docker(['inspect', object_id])
-    return json.loads(j)
+    obj = json.loads(j)
+    if len(obj):
+        return obj[0]
+    else:
+        return None
 
 def run(image, params, ports=[]):
     args = ['run', '-d', '-t']
@@ -36,8 +40,14 @@ def wait(container_id):
 def commit(container_id, repository):
     return docker(['commit', container_id, repository])
 
+def start(container_id):
+    return docker(['start', container_id])
+
 def stop(container_id):
     return docker(['stop', container_id])
+
+def rm(container_id):
+    return docker(['rm', container_id])
 
 def docker(args):
     args = ['docker'] + list(args)

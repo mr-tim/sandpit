@@ -6,6 +6,7 @@ from wtforms import Form, StringField, validators
 
 import app_factory
 from core import current_user, db
+import docker
 from models import App, AppImage
 import security
 import tasks
@@ -54,13 +55,13 @@ def create_image(app_id):
     if form.validate():
         app_image = AppImage(name=form.image_name.data, status='Pending build since %s' % datetime.now().strftime('%Y-%m-%d %H:%M:%S'), app=app)
         params = extract_build_params(app, form)
-        app_image.params = json.dumps(params)
+        app_image.params_json = json.dumps(params)
         db.add(app_image)
         db.commit()
 
         tasks.build_image.delay(app_image.id)
 
-        return redirect('/app/%s' % app.id)
+        return redirect_to_app_page(app)
     else:
         return render_template('createImage.html', app=app, current_tab='apps', form=form)
 
@@ -81,7 +82,6 @@ def create_new_image_form(app, form_values=None):
 
     return form
 
-
 def extract_build_params(app, form):
     params = {}
     param_names = set([n for n, d in app.app_type.build_image_params])
@@ -91,4 +91,65 @@ def extract_build_params(app, form):
 
     return params
 
+@apps.route('/app/<app_id>/createInstance', methods=['POST'])
+def create_instance(app_id):
+    app = db.query(App).get(app_id)
+    image = app.image(int(request.form.get('image_id', -1)))
 
+    if image:
+        tasks.run_image(image.id)
+
+    return redirect_to_app_page(app)
+
+@apps.route('/app/<app_id>/instance/<int:instance_id>/delete', methods=['POST'])
+def delete_instance(app_id, instance_id):
+    app = db.query(App).get(app_id)
+    instance = app.instance(instance_id)
+
+    if instance and instance.status != 'Running' and not instance.is_live:
+        docker.rm(instance.container_id)
+        db.delete(instance)
+        db.commit()
+
+    return redirect_to_app_page(app)
+
+@apps.route('/app/<app_id>/instance/<int:instance_id>/stop', methods=['POST'])
+def stop_instance(app_id, instance_id):
+    app = db.query(App).get(app_id)
+    instance = app.instance(instance_id)
+
+    if instance and instance.status == 'Running' and not instance.is_live:
+        docker.stop(instance.container_id)
+
+    return redirect_to_app_page(app)
+
+@apps.route('/app/<app_id>/instance/<int:instance_id>/start', methods=['POST'])
+def start_instance(app_id, instance_id):
+    app = db.query(App).get(app_id)
+    instance = app.instance(instance_id)
+
+    if instance and instance.status != 'Running':
+        docker.start(instance.container_id)
+
+    return redirect_to_app_page(app)
+
+@apps.route('/app/<app_id>/instance/<int:instance_id>/goLive', methods=['POST'])
+def go_live(app_id, instance_id):
+    app = db.query(App).get(app_id)
+    instance = app.instance(instance_id)
+
+    if instance and instance.status == 'Running':
+        for i in app.instances:
+            i.is_live = False
+        instance.is_live = True
+
+        f = app.app_type()
+        f.create_front_end(instance.container_id, app.url[7:])
+
+        db.commit()        
+
+    return redirect_to_app_page(app)
+
+
+def redirect_to_app_page(app):
+    return redirect('/app/%s' % app.id)
