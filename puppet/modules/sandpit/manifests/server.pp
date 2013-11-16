@@ -31,7 +31,7 @@ define sandpit::server() {
     ensure => "running"
   }
 
-  file { ["/sandpit", "/sandpit/sessions", "/sandpit/sessions/data", "/sandpit/sessions/lock"]:
+  file { ["/sandpit", "/sandpit/sessions", "/sandpit/sessions/data", "/sandpit/sessions/lock", "/sandpit/uploads"]:
     ensure => "directory",
     owner => "vagrant",
     group => "vagrant"

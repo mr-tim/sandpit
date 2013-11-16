@@ -1,7 +1,6 @@
 from celery import Celery
 from datetime import datetime
 
-import docker
 from models import Session, AppImage, AppInstance
 
 celery = Celery('build_instance', broker='amqp://guest:guest@localhost:5672//')
@@ -17,10 +16,8 @@ def build_image(app_image_id):
         kwargs = app_image.params
 
         f = app_image.app.app_type()
-        container_id = f.build_image(**kwargs)
-
-        docker_image_id = docker.commit(container_id, '_/AppImage/%s/%s' % (app_image.app.id, app_image.id))
-        app_image.docker_image_id = docker_image_id
+        f.docker_image_tag = '_/AppImage/%s/%s' % (app_image.app.id, app_image.id) 
+        app_image.docker_image_id = f.build_image(**kwargs)
         app_image.status = 'Built'
         session.commit()
     except Exception as e:

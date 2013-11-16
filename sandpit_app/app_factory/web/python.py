@@ -1,6 +1,5 @@
 from app_factory.web import WebAppBuilder
 import docker
-import nginx
 
 class Shykes(WebAppBuilder):
     name = "Python webapp - Shykes"
@@ -14,13 +13,13 @@ class Shykes(WebAppBuilder):
         print "Building image: %s, %r" % (base_image, args)
         container_id = docker.run(base_image, args)
         docker.wait(container_id)
-        return container_id
+        image_id = docker.commit(container_id, self.docker_image_tag)
+        return image_id
+
+    @property
+    def exposed_port(self):
+        return 5000
 
     def run(self, app_id, docker_image_id):
-        return docker.run(docker_image_id, ['/usr/local/bin/runapp'], ports=[5000])
+        return docker.run(docker_image_id, ['/usr/local/bin/runapp'], ports=[self.exposed_port])
 
-    def create_front_end(self, container_id, vhost):
-        process_details = docker.inspect(container_id)
-        forwarded_port = process_details["NetworkSettings"]["PortMapping"]["Tcp"]["5000"]
-        backend = "http://localhost:%s" % forwarded_port
-        nginx.configure_vhost(vhost, backend)

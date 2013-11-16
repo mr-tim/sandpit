@@ -26,7 +26,7 @@ def inspect(object_id):
     else:
         return None
 
-def run(image, params, ports=[]):
+def run(image, params=[], ports=[]):
     args = ['run', '-d', '-t']
     for p in ports:
         args.extend(['-p', str(p)])
@@ -48,6 +48,12 @@ def stop(container_id):
 
 def rm(container_id):
     return docker(['rm', container_id])
+
+def build(build_dir, tag):
+    output = docker(['build', '-t', tag, build_dir])
+    last_line = output.split('\n')[-1]
+    image_id = last_line.split(' ')[-1]
+    return image_id
 
 def docker(args):
     args = ['docker'] + list(args)

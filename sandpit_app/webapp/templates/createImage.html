@@ -12,7 +12,7 @@
 {% block main %}
 <h3>Create image for {{ app.name }}</h3>
 
-<form role='form' action='/app/{{ app.id }}/createImage' method='post' class='form-horizontal'>
+<form role='form' action='/app/{{ app.id }}/createImage' method='post' class='form-horizontal' enctype='multipart/form-data'>
     {% for field in form %}
         {{ render_field(field) }}
     {% endfor %}

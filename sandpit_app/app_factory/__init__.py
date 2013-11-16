@@ -3,7 +3,8 @@ import importlib
 class FactoryIndex(object):
     def __init__(self):
         factory_classes = [
-            'web.python.Shykes'
+            'web.python.Shykes',
+            'web.java.UploadedWar'
         ]
         self.factories = dict((c, self._load_factory(c)) for c in factory_classes)
 

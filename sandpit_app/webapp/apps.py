@@ -1,10 +1,14 @@
 from datetime import datetime
 from flask import Blueprint, redirect, render_template, request
 import json
+import os
+import os.path
 import re
-from wtforms import Form, StringField, validators
+from werkzeug import secure_filename
+from wtforms import Form, FileField, StringField, validators
 
 import app_factory
+import config
 from core import current_user, db
 import docker
 from models import App, AppImage
@@ -54,9 +58,10 @@ def create_image(app_id):
 
     if form.validate():
         app_image = AppImage(name=form.image_name.data, status='Pending build since %s' % datetime.now().strftime('%Y-%m-%d %H:%M:%S'), app=app)
-        params = extract_build_params(app, form)
-        app_image.params_json = json.dumps(params)
         db.add(app_image)
+        db.flush()
+        params = extract_build_params(app, app_image, form)
+        app_image.params_json = json.dumps(params)
         db.commit()
 
         tasks.build_image.delay(app_image.id)
@@ -74,20 +79,32 @@ def create_new_image_form(app, form_values=None):
         desc  = {}
         if 'placeholder' in field_desc:
             desc['placeholder'] = field_desc['placeholder']
+        T = StringField
+        if 'field_type' in field_desc:
+            if field_desc['field_type'] == 'file':
+                T = FileField
 
-        field = StringField(field_desc['name'], description=desc)
+        field = T(field_desc['name'], description=desc)
         setattr(ImageForm, field_name, field)
 
     form = ImageForm(form_values)
 
     return form
 
-def extract_build_params(app, form):
+def extract_build_params(app, app_image, form):
     params = {}
     param_names = set([n for n, d in app.app_type.build_image_params])
     for f in form:
         if f.name in param_names:
             params[f.name] = f.data
+            if isinstance(f, FileField):
+                upload_file_path = os.path.join(config.uploads_dir, app.id, str(app_image.id), f.name)
+                if not os.path.exists(upload_file_path):
+                    os.makedirs(upload_file_path)
+                uploaded_file = request.files[f.name]
+                upload_filename = os.path.join(upload_file_path, secure_filename(uploaded_file.filename))
+                uploaded_file.save(upload_filename)
+                params[f.name] = upload_filename
 
     return params
 
