@@ -1,6 +1,13 @@
-import os.path
+import json
+import os
+from os.path import join
 
-sandpit_dir = '/sandpit'
-uploads_dir = os.path.join(sandpit_dir, 'uploads')
+sandpit_dir = os.getenv('SANDPIT_DIR', '/sandpit')
+uploads_dir = join(sandpit_dir, 'uploads')
 client_secrets_location = '/vagrant/client_secrets.json'
-domain_suffix = 'sandpit.dev'
+
+with open(join(sandpit_dir, 'sandpit.json')) as config_file:
+	values = json.load(config_file)
+	l = locals()
+	for k, v in values.iteritems():
+		l[k] = v

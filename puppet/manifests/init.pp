@@ -15,4 +15,9 @@ service { "rabbitmq-server":
   ensure => "running"
 }
 
-
+file { "/sandpit/sandpit.json":
+  ensure => "present",
+  source => "/vagrant/sandpit.json",
+  require => File["/sandpit"],
+  notify => Service["sandpit-app"]
+}
