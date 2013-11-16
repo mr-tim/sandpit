@@ -101,6 +101,8 @@ class User(Base):
 
     email = Column(String, primary_key=True)
     name = Column(String)
+    is_admin = Column(Boolean, default=False)
+
 
 
 engine = create_engine('sqlite:///sandpit.sqlite', echo=True)
